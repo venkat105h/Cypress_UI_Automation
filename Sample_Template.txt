@@ -1,0 +1,47 @@
+/*
+Author:
+Description:
+Timestamp:
+*/
+
+//Common importing
+
+import environment from '../config/environment';
+import { expect } from 'chai'
+import Responsemessages from '../config/Responsemessages';
+import { sendRequest } from '../helper/CommonUtil'
+require('dotenv').config();
+
+//Describe block
+Description : This is the start of test suite . 300 represents the time it will halt post every it block
+
+describe('Test suite name with all functionality overview', () => {
+    beforeEach(function (done) {
+      setTimeout(function () {
+        done();
+      }, 300);
+    });
+
+//Sample GET request IT block
+
+it.only('Test case name : GET "Endpoint path", async () => {
+    var response = await sendRequest(environment."url to be used", "endpoint path", { headers }, "method name")
+    expect(response.body.'assertionkey').to.equal('assertion value')
+    expect(response.body.message).to.equal(Responsemessages.'assertion value');
+  });
+
+//Sample POST/PUT it block
+
+
+  it.only('Add a single attendee in people : POST 'Endpoint path'', async () => {
+
+    const 'variable name' = {
+      'body'
+      }
+    }
+    var response = await sendRequest(environment."url to be used", 'Endpoint path', { headers }, 'method name', 'body variable name')
+    expect(response.body.'assertionkey').to.equal('assertion value')
+    expect(response.body.message).to.equal(Responsemessages.'assertion value');
+  });
+
+

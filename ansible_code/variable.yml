@@ -1,0 +1,7 @@
+aws_storage_bucket_name: rahul-allure-poc
+build_number: 7
+date: 20220114
+job_name: qatreports
+deploy_path: '/home/ubuntu/custom/projects/test/reports/{{ build_number }}'
+aws_region: ap-south-1
+report_dir: allure-report 

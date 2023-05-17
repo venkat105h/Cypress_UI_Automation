@@ -1,0 +1,91 @@
+pipeline {
+    agent any
+    environment {
+      AWS_REGION = 'ap-south-1'
+      S3_REPORTS_STORE = 'rahul-allure-poc'
+      currentDate = sh(returnStdout: true, script: 'date +%Y%m%d').trim()
+      lastSuccesfulBuildId = sh(returnStdout: true, script: 'cat $HOME/jobs/v2testautomation/jobs/$JOB_BASE_NAME/builds/permalinks | grep lastSuccessfulBuild | sed \'s/lastSuccessfulBuild //\'').trim()
+
+    }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            string(
+                                defaultValue: 'rahul-allure-report',
+                                name: 'Branch_Name',
+                                trim: true
+                            ),
+                        ])
+                    ])
+                }
+            }
+        }
+
+        stage('checkout from gitlab') {
+            steps {
+                git branch: params.Branch_Name,
+                credentialsId: 'd0d616f8-3df5-4dcd-996a-0dfa9d294146',
+                url: 'https://gitlab.com/qa_hubilo/api-automation-v2.git'
+                sh "ls -lat"
+                sh "echo 'delete report.html'"
+                sh "rm report.html"
+                sh "echo 'delete pdf reports'"
+                sh "rm ./PdfGeneration/*.pdf"
+            }
+        }
+        
+        stage('run automation scripts') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                script {
+                sh """
+                   echo "npm install"
+                   npm install
+                   echo "executing script"
+                   npm run qat1allurerun
+                   aws s3 cp s3://rahul-allure-poc/qatreports/$lastSuccesfulBuildId/history allure-results/history --recursive
+                   """
+               }
+               }
+            }
+        }
+        
+        stage('publish reports') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                script {
+                sh '''echo "Generate allure report"
+                npm run allurereportgen
+                ls -al 
+                sudo aws s3 cp $WORKSPACE/allure-report s3://$S3_REPORTS_STORE/$JOB_BASE_NAME/$BUILD_NUMBER/ --recursive'''
+               }
+               }
+            }
+        }
+        
+        
+        
+         stage('publish reports to allure server') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                script {
+                sh """
+                   echo "publish allure report to allure server"
+                   aws secretsmanager get-secret-value --secret-id rahul-allure-poc-key --query 'SecretString' --output text > $WORKSPACE/t.pem
+                   chmod 400 $WORKSPACE/t.pem &&  ansible-playbook -i ansible_code/aws_ec2.yml ansible_code/main.yml --tags deploy --private-key=$WORKSPACE/t.pem -u ubuntu -e build_number=$BUILD_NUMBER -e date=$currentDate -e report_dir=$WORKSPACE/allure-report -e aws_storage_bucket_name=$S3_REPORTS_STORE 
+                   """
+               }
+               }
+            }
+        }
+
+        stage('clean workspace') {
+            steps {
+               cleanWs()
+            }
+        }
+  }
+}   

@@ -1,0 +1,19 @@
+> Command to install packages:
+npm i --save-dev supertest mocha chai @babel/cli @babel/core @babel/node @babel/register @babel/preset-env
+
+> Command to install faker module:
+npm install faker
+
+
+> MochaAwesome: 
+npm install --save-dev mochawesome
+mocha testfile.js --reporter mochawesome
+
+
+> Resources:
+NodeJS: https://nodejs.org/en/download/​
+SuperTest: https://www.npmjs.com/package/supertest​
+Mocha JS: https://mochajs.org/​
+Chai JS: https://www.chaijs.com/​
+Babel: https://babeljs.io/
+Faker: https://www.npmjs.com/package/faker

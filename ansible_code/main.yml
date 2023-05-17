@@ -1,0 +1,8 @@
+--- 
+-  hosts: all
+   vars_files: 
+    - variable.yml
+   tasks:    
+    - name: deploy code
+      include: deploy.yml
+      tags: deploy

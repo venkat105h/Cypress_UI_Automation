@@ -1,0 +1,7 @@
+{
+	"reporterEnabled": "good-mocha-html-reporter,allure-mocha",
+	"allureMochaReporterOptions": {
+	    "resultsDir": "./allure-results",
+	    "deletePreviousResults": true
+ 	 }
+}
